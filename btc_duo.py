@@ -423,6 +423,29 @@ for time in tqdm(date_list):
     res_data = pd.concat([res_data,sub_last_data])
 res_data = res_data.sort_values(by=['new_date','hour'])
 res_data = res_data.reset_index(drop=True)
+
+res_data['price_1'] = res_data['price'].shift(-1) 
+res_data['price_2'] = res_data['price'].shift(-2) 
+res_data['price_3'] = res_data['price'].shift(-3) 
+res_data['price_4'] = res_data['price'].shift(-4) 
+res_data['price_5'] = res_data['price'].shift(-5) 
+res_data['price_6'] = res_data['price'].shift(-6) 
+res_data['price_7'] = res_data['price'].shift(-7) 
+res_data['price_8'] = res_data['price'].shift(-8) 
+def xiuzheng(x):
+    if x[1] < 10 and x[5]>300:
+        y = x[5]
+    elif x[1] < 10 and x[5]<10 and x[6]>300:
+        y = x[6]  
+    elif x[1] < 10 and x[5]<10 and x[6]<10 and x[7]>300:
+        y = x[7]  
+    elif x[1] < 10 and x[5]<10 and x[6]<10 and x[7]<10 and x[8]>300:
+        y = x[8]  
+    else:
+        y = x[1]
+    return y 
+res_data['price_xiu'] = res_data.apply(lambda x:xiuzheng(x),axis=1)
+
 date_s = []
 date_e = []
 open_p = []
@@ -448,7 +471,7 @@ while i < len(last_df)-1:
         sub_later_data = sub_later_data.reset_index(drop=True)
         for j in range(len(sub_later_data)):
             #print('====' +str(j))
-            close_price = sub_later_data['price'][j]
+            close_price = sub_later_data['price_xiu'][j]
             close_date = sub_later_data['new_date'][j]
             if (close_price - open_price)/open_price >= 0.09:
                 close_p.append(close_price)
@@ -475,7 +498,7 @@ while i < len(last_df)-1:
                 sub_later_data_1 = sub_later_data_1.reset_index(drop=True)
                 for w in range(len(sub_later_data_1)):
                     #print(w)
-                    close_price = sub_later_data_1['price'][w]
+                    close_price = sub_later_data_1['price_xiu'][w]
                     close_date = sub_later_data_1['new_date'][w]
                     if (close_price - open_price)/open_price <= 0.03:
                         close_p.append(open_price*1.03)
